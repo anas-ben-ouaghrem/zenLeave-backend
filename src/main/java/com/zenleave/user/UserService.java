@@ -2,7 +2,6 @@ package com.zenleave.user;
 
 import com.zenleave.auth.AuthenticationService;
 import com.zenleave.auth.RegisterRequest;
-import com.zenleave.auth.TwoFactorAuthenticationService;
 import com.zenleave.config.JwtService;
 import com.zenleave.entities.OrganizationalUnit;
 import com.zenleave.entities.Team;
@@ -29,7 +28,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final OrganizationalUnitRepository organizationalUnitRepository;
     private final JwtService jwtService;
-    private final TwoFactorAuthenticationService tfaService;
+
     private final AuthenticationService authenticationService;
     private final MailingService mailingService;
 

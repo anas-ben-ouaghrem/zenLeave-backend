@@ -29,7 +29,6 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
-    private final TwoFactorAuthenticationService tfaService;
 
     public AuthenticationResponse register(RegisterRequest request) {
         var user = User.builder()
@@ -44,16 +43,13 @@ public class AuthenticationService {
                 .build();
 
         //if MFA enabled --> Generate Secret
-        if (request.isMfaEnabled()) {
-            user.setSecret(tfaService.generateNewSecret());
-        }
+
 
         var savedUser = repository.save(user);
         var jwtToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
         saveUserToken(jwtToken, savedUser);
         return AuthenticationResponse.builder()
-                .secretImageUri(tfaService.generateQrCodeImageUri(user.getSecret()))
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken)
                 .mfaEnabled(user.isMfaEnabled())
@@ -92,9 +88,7 @@ public class AuthenticationService {
                 .orElseThrow(() -> new EntityNotFoundException(
                         String.format("No user found with %S", verificationRequest.getEmail()))
                 );
-        if(tfaService.isOtpNotValid(user.getSecret(), verificationRequest.getCode())) {
-            throw new BadCredentialsException("Code is not correct");
-        }
+
         var jwtToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
         revokeAllUserTokens(user);
